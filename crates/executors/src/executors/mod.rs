@@ -18,8 +18,8 @@ use crate::{
     command::CommandBuildError,
     env::ExecutionEnv,
     executors::{
-        amp::Amp, claude::ClaudeCode, codex::Codex, copilot::Copilot, cursor::CursorAgent,
-        droid::Droid, gemini::Gemini, opencode::Opencode, qwen::QwenCode,
+        amp::Amp, claude::ClaudeCode, claude_flow::ClaudeFlow, codex::Codex, copilot::Copilot,
+        cursor::CursorAgent, droid::Droid, gemini::Gemini, opencode::Opencode, qwen::QwenCode,
     },
     mcp_config::McpConfig,
 };
@@ -27,6 +27,7 @@ use crate::{
 pub mod acp;
 pub mod amp;
 pub mod claude;
+pub mod claude_flow;
 pub mod codex;
 pub mod copilot;
 pub mod cursor;
@@ -89,6 +90,9 @@ pub enum ExecutorError {
 )]
 pub enum CodingAgent {
     ClaudeCode,
+    #[serde(alias = "CLAUDE_FLOW")]
+    #[strum_discriminants(serde(alias = "CLAUDE_FLOW"))]
+    ClaudeFlow,
     Amp,
     Gemini,
     Codex,
@@ -156,6 +160,7 @@ impl CodingAgent {
     pub fn capabilities(&self) -> Vec<BaseAgentCapability> {
         match self {
             Self::ClaudeCode(_)
+            | Self::ClaudeFlow(_)
             | Self::Amp(_)
             | Self::Gemini(_)
             | Self::QwenCode(_)
@@ -320,5 +325,18 @@ mod tests {
         let result: Result<BaseCodingAgent, _> = serde_json::from_str(r#""CURSOR""#);
         assert!(result.is_ok(), "CURSOR should deserialize via serde");
         assert_eq!(result.unwrap(), BaseCodingAgent::CursorAgent);
+    }
+}
+
+#[cfg(test)]
+mod claude_flow_integration_tests {
+    use super::*;
+    use crate::executors::claude_flow::ClaudeFlow;
+
+    #[test]
+    fn test_claude_flow_enum_variant() {
+        let agent = CodingAgent::ClaudeFlow(ClaudeFlow::default());
+        let capabilities = agent.capabilities();
+        assert!(capabilities.contains(&BaseAgentCapability::SessionFork));
     }
 }

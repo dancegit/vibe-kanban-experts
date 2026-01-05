@@ -228,6 +228,28 @@
           "model": "glm-4.6"
         }
       }
+    },
+    "CLAUDE_FLOW": {
+      "DEFAULT": {
+        "CLAUDE_FLOW": {
+          "non_interactive": true,
+          "enable_chaining": true
+        }
+      },
+      "SWARM": {
+        "CLAUDE_FLOW": {
+          "non_interactive": true,
+          "enable_chaining": true,
+          "agent_id": "swarm-coordinator"
+        }
+      },
+      "AUTOMATION": {
+        "CLAUDE_FLOW": {
+          "non_interactive": true,
+          "enable_chaining": false,
+          "agent_id": "automation-agent"
+        }
+      }
     }
   }
 }

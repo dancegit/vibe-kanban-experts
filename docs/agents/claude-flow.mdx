@@ -1,0 +1,192 @@
+---
+title: "Claude-Flow"
+description: "Set up claude-flow for multi-agent swarm orchestration"
+icon: "https://www.vibekanban.com/images/logos/claude-flow.svg"
+---
+
+<Steps>
+<Step title="Install Claude-Flow">
+  Claude-Flow is available via npm. Install it globally or use npx:
+
+  ```bash
+  npm install -g claude-flow
+  # or use npx directly
+  npx claude-flow@alpha
+  ```
+</Step>
+
+<Step title="Authenticate with Claude-Flow">
+  Follow the authentication flow when prompted. You'll need:
+
+  - Claude Code credentials
+  - API access permissions
+  - Any required authentication tokens
+
+  For enterprise setups, configure authentication via:
+  ```bash
+  claude-flow auth --configure
+  ```
+</Step>
+
+<Step title="Configure Claude-Flow Settings">
+  Claude-Flow will create a configuration file at `~/.claude-flow/config.json` automatically.
+
+  Key configuration options:
+  - **Non-interactive mode**: Enable for automation workflows
+  - **Stream chaining**: Enable for agent-to-agent communication
+  - **Swarm configuration**: Define agent roles and dependencies
+</Step>
+
+<Step title="Start Vibe Kanban">
+  Launch Vibe Kanban to access Claude-Flow as an agent option:
+
+  ```bash
+  npx vibe-kanban
+  ```
+
+  Claude-Flow will now appear in the agent selection dropdown with multiple configuration variants:
+  - **Default**: Basic swarm execution with chaining enabled
+  - **Swarm**: Coordinated multi-agent swarm mode
+  - **Automation**: Single-agent automation mode
+</Step>
+</Steps>
+
+## Configuration Variants
+
+### Default Configuration
+The default Claude-Flow configuration provides:
+- Non-interactive mode for automated execution
+- Stream chaining enabled for agent coordination
+- JSON streaming output for real-time updates
+- Basic swarm orchestration capabilities
+
+### Swarm Configuration
+Enhanced swarm mode includes:
+- Dedicated swarm coordinator agent
+- Multi-agent coordination
+- Advanced orchestration features
+- Real-time agent communication
+
+### Automation Configuration
+Single-agent automation mode:
+- Stream chaining disabled for simple workflows
+- Direct task execution
+- Reduced resource overhead
+- Ideal for straightforward automation tasks
+
+## Advanced Usage
+
+### Custom Swarm Configuration
+You can provide custom swarm configurations by:
+
+1. **Creating a workflow file**:
+   ```json
+   {
+     "name": "Custom Swarm",
+     "agents": [
+       {"id": "planner", "role": "planning"},
+       {"id": "executor", "role": "execution"},
+       {"id": "reviewer", "role": "review"}
+     ],
+     "dependencies": {
+       "executor": ["planner"],
+       "reviewer": ["executor"]
+     }
+   }
+   ```
+
+2. **Using the configuration in Vibe Kanban**:
+   - Select the "Custom" configuration option
+   - Paste your workflow JSON
+   - Execute with advanced swarm coordination
+
+### Stream Chaining
+Claude-Flow's stream chaining enables real-time agent coordination:
+
+- **Agent-to-agent communication** via JSON streams
+- **Context preservation** across agent handoffs
+- **Dependency management** for complex workflows
+- **Performance optimization** through direct streaming
+
+### Non-Interactive Mode
+For automation and CI/CD integration:
+
+```bash
+# Execute task in non-interactive mode
+claude-flow automation run-task "Your task description" \
+  --output-format stream-json \
+  --non-interactive
+
+# With custom workflow
+claude-flow automation run-workflow workflow.json \
+  --output-format stream-json \
+  --non-interactive \
+  --chaining
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Authentication Problems
+- **Issue**: Claude-Flow authentication fails
+- **Solution**: Verify Claude Code credentials and API access
+- **Command**: `claude-flow auth status`
+
+#### Stream Processing Issues
+- **Issue**: JSON streaming output not displaying
+- **Solution**: Check that `--output-format stream-json` is enabled
+- **Verification**: Run with `--verbose` for debugging output
+
+#### Agent Coordination Problems
+- **Issue**: Agent chaining not working
+- **Solution**: Ensure dependencies are properly configured
+- **Check**: Verify swarm configuration and agent roles
+
+### Debug Mode
+Enable verbose logging for troubleshooting:
+
+```bash
+claude-flow swarm "Your task" --verbose --output-format stream-json
+```
+
+### Health Check
+Verify Claude-Flow installation and configuration:
+
+```bash
+claude-flow --version
+claude-flow auth status
+```
+
+## Performance Optimization
+
+### Resource Management
+- **Memory usage**: Monitor agent memory consumption
+- **CPU optimization**: Use appropriate agent models for tasks
+- **Network efficiency**: Leverage stream chaining for reduced overhead
+
+### Best Practices
+1. **Use stream chaining** for multi-agent workflows
+2. **Enable non-interactive mode** for automation
+3. **Configure appropriate agent roles** for complex tasks
+4. **Monitor resource usage** during execution
+5. **Use workflow files** for repeatable processes
+
+## Integration with Vibe Kanban
+
+### Real-time Updates
+Claude-Flow provides real-time updates to the Vibe Kanban board:
+- **Task progress** updates
+- **Agent status** monitoring
+- **Tool execution** results
+- **Completion notifications**
+
+### Session Management
+- **Follow-up tasks** supported via session continuation
+- **Context preservation** across task executions
+- **State tracking** for complex workflows
+
+### Error Handling
+- **Graceful degradation** when agents fail
+- **Retry mechanisms** for transient errors
+- **User feedback** for permission and configuration issues
