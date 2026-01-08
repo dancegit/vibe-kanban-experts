@@ -3,6 +3,7 @@
 **Deployment Date**: 2026-01-07
 **Environment**: Development
 **Branch**: dev
+**Docker Compose**: `docker-compose.dev.yml`
 **Status**: ✅ Configuration Complete
 
 ## Dokploy Project Overview
@@ -56,12 +57,19 @@ postgres://vibe_kanban_dev:dev_db_password_2026_secure@dokploy-host:5432/vibe_ka
 - **Auto-deploy**: Enabled
 
 **Build Configuration**
-- **Build Type**: Dockerfile
-- **Dockerfile Path**: `/Dockerfile`
+- **Build Type**: Docker Compose
+- **Docker Compose File**: `docker-compose.dev.yml`
 - **Docker Context**: `/`
-- **Docker Build Stage**: `runtime`
 - **Repository**: `https://github.com/dancegit/vibe-kanban-experts`
 - **Branch**: `dev`
+
+**Docker Compose Configuration**
+The development environment uses `docker-compose.dev.yml` which includes:
+- Application service with debug logging (`RUST_LOG=debug`)
+- No resource limits for flexible development
+- Health checks enabled
+- All environment variables passed through
+- Note: PostgreSQL is managed separately by Dokploy (not in compose file)
 
 **Network Configuration**
 - **Internal Port**: 3000
