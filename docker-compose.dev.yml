@@ -9,7 +9,6 @@ services:
         POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
         POSTHOG_API_ENDPOINT: ${POSTHOG_API_ENDPOINT:-}
     container_name: vibe-kanban-dev
-    restart: unless-stopped
     environment:
       - HOST=0.0.0.0
       - PORT=3000
@@ -33,44 +32,10 @@ services:
       - GITHUB_APP_WEBHOOK_SECRET=${GITHUB_APP_WEBHOOK_SECRET:-}
       - GITHUB_APP_SLUG=${GITHUB_APP_SLUG:-}
       - DISABLE_WORKTREE_ORPHAN_CLEANUP=${DISABLE_WORKTREE_ORPHAN_CLEANUP:-}
-    networks:
-      - vibe-kanban-dev
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres-dev
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  postgres-dev:
-    image: postgres:15-alpine
-    container_name: vibe-kanban-postgres-dev
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: vibe_kanban_dev
-      POSTGRES_USER: vibe_kanban_dev
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password_change_me}
-    volumes:
-      - postgres-dev-data:/var/lib/postgresql/data
-    networks:
-      - vibe-kanban-dev
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vibe_kanban_dev -d vibe_kanban_dev"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-volumes:
-  postgres-dev-data:
-    driver: local
-
-networks:
-  vibe-kanban-dev:
-    driver: bridge
