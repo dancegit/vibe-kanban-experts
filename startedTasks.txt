@@ -1,1 +1,1 @@
-4185473 logs/001-add-claude-flow-as-agent.log
+156020 logs/002-make-sh-script-forbuildnpx-and-explain.log

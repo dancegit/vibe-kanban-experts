@@ -1,13 +1,21 @@
 {
   "mcpServers": {
     
- "context7": {
+"dokploy-mcp": {
+      "command": "npx",
+      "args": ["-y", "@ahdev/dokploy-mcp"],
+      "env": {
+        "DOKPLOY_URL": "http://185.177.73.38:3000/api",
+        "DOKPLOY_API_KEY": "jGDXGwOyVNniemUKtZcBjeilmNthaoALjWctziaqZwNYbEzFpiVyedCHsUYHbfnz"
+      }
+    },  	  
+	  "context7": {
       "command": "npx",
       "args": [
         "-y",
         "@upstash/context7-mcp@latest"
       ]
-    },	  
+    },    
     "playwright": {
       "type": "stdio",
       "command": "npx",
@@ -15,6 +23,34 @@
         "@playwright/mcp@latest"
       ],
       "env": {}
+    },
+
+	  "claude-flow@alpha": {
+      "command": "npx",
+      "args": [
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ],
+      "type": "stdio"
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": [
+        "ruv-swarm@latest",
+        "mcp",
+        "start"
+      ],
+      "type": "stdio"
+    },
+    "flow-nexus": {
+      "command": "npx",
+      "args": [
+        "flow-nexus@latest",
+        "mcp",
+        "start"
+      ],
+      "type": "stdio"
     }
   }
 }
