@@ -8,11 +8,14 @@ services:
       args:
         POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
         POSTHOG_API_ENDPOINT: ${POSTHOG_API_ENDPOINT:-}
+      cache_from:
+        - vibe-kanban-prod:latest
+    image: vibe-kanban-prod:latest
     container_name: vibe-kanban-prod
     environment:
       - HOST=0.0.0.0
       - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgres://vibe_kanban_prod:prod_db_password_2026_secure_change_me@postgres-prod:5432/vibe_kanban_prod
       - RUST_LOG=info
       - GITHUB_OAUTH_CLIENT_ID=${GITHUB_OAUTH_CLIENT_ID}
       - GITHUB_OAUTH_CLIENT_SECRET=${GITHUB_OAUTH_CLIENT_SECRET}
@@ -31,6 +34,9 @@ services:
       - GITHUB_APP_PRIVATE_KEY=${GITHUB_APP_PRIVATE_KEY:-}
       - GITHUB_APP_WEBHOOK_SECRET=${GITHUB_APP_WEBHOOK_SECRET:-}
       - GITHUB_APP_SLUG=${GITHUB_APP_SLUG:-}
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
     restart: unless-stopped
     deploy:
       resources:
@@ -48,7 +54,34 @@ services:
       start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vibe-kanban-prod.rule=Host(`vibe-kanban.aboutco.ai`)"
+      - "traefik.http.routers.vibe-kanban-prod.rule=Host(`vibe-kanban.aboutco.ai`, `www.vibe-kanban.aboutco.ai`)"
       - "traefik.http.routers.vibe-kanban-prod.entrypoints=websecure"
       - "traefik.http.routers.vibe-kanban-prod.tls.certresolver=letsencrypt"
       - "traefik.http.services.vibe-kanban-prod.loadbalancer.server.port=3000"
+
+  postgres-prod:
+    image: postgres:15-alpine
+    container_name: vibe-kanban-postgres-prod
+    environment:
+      POSTGRES_DB: vibe_kanban_prod
+      POSTGRES_USER: vibe_kanban_prod
+      POSTGRES_PASSWORD: prod_db_password_2026_secure_change_me
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vibe_kanban_prod -d vibe_kanban_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+
+volumes:
+  postgres-prod-data:
+    driver: local
