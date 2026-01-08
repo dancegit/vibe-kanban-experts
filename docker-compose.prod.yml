@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  vibe-kanban-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+        POSTHOG_API_ENDPOINT: ${POSTHOG_API_ENDPOINT:-}
+      cache_from:
+        - vibe-kanban-prod:latest
+    image: vibe-kanban-prod:latest
+    container_name: vibe-kanban-prod
+    restart: unless-stopped
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
+      - RUST_LOG=info
+      - GITHUB_OAUTH_CLIENT_ID=${GITHUB_OAUTH_CLIENT_ID}
+      - GITHUB_OAUTH_CLIENT_SECRET=${GITHUB_OAUTH_CLIENT_SECRET}
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID:-}
+      - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      - VIBEKANBAN_REMOTE_JWT_SECRET=${VIBEKANBAN_REMOTE_JWT_SECRET}
+      - LOOPS_EMAIL_API_KEY=${LOOPS_EMAIL_API_KEY:-}
+      - POSTHOG_API_KEY=${POSTHOG_API_KEY:-}
+      - POSTHOG_API_ENDPOINT=${POSTHOG_API_ENDPOINT:-}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}
+      - R2_REVIEW_ENDPOINT=${R2_REVIEW_ENDPOINT:-}
+      - R2_REVIEW_BUCKET=${R2_REVIEW_BUCKET:-}
+      - REVIEW_WORKER_BASE_URL=${REVIEW_WORKER_BASE_URL:-}
+      - GITHUB_APP_ID=${GITHUB_APP_ID:-}
+      - GITHUB_APP_PRIVATE_KEY=${GITHUB_APP_PRIVATE_KEY:-}
+      - GITHUB_APP_WEBHOOK_SECRET=${GITHUB_APP_WEBHOOK_SECRET:-}
+      - GITHUB_APP_SLUG=${GITHUB_APP_SLUG:-}
+    networks:
+      - vibe-kanban-prod
+    ports:
+      - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vibe-kanban-prod.rule=Host(`vibe-kanban.aboutco.ai`, `www.vibe-kanban.aboutco.ai`)"
+      - "traefik.http.routers.vibe-kanban-prod.entrypoints=websecure"
+      - "traefik.http.routers.vibe-kanban-prod.tls.certresolver=letsencrypt"
+      - "traefik.http.services.vibe-kanban-prod.loadbalancer.server.port=3000"
+
+  postgres-prod:
+    image: postgres:15-alpine
+    container_name: vibe-kanban-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vibe_kanban_prod
+      POSTGRES_USER: vibe_kanban_prod
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+    networks:
+      - vibe-kanban-prod
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vibe_kanban_prod -d vibe_kanban_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres-prod-data:
+    driver: local
+
+networks:
+  vibe-kanban-prod:
+    driver: bridge
