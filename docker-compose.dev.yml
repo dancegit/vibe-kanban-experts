@@ -12,7 +12,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgres://vibe_kanban_dev:dev_db_password_2026_secure@postgres-dev:5432/vibe_kanban_dev
       - RUST_LOG=debug
       - GITHUB_OAUTH_CLIENT_ID=${GITHUB_OAUTH_CLIENT_ID}
       - GITHUB_OAUTH_CLIENT_SECRET=${GITHUB_OAUTH_CLIENT_SECRET}
@@ -32,6 +32,9 @@ services:
       - GITHUB_APP_WEBHOOK_SECRET=${GITHUB_APP_WEBHOOK_SECRET:-}
       - GITHUB_APP_SLUG=${GITHUB_APP_SLUG:-}
       - DISABLE_WORKTREE_ORPHAN_CLEANUP=${DISABLE_WORKTREE_ORPHAN_CLEANUP:-}
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
@@ -39,3 +42,24 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: vibe-kanban-postgres-dev
+    environment:
+      POSTGRES_DB: vibe_kanban_dev
+      POSTGRES_USER: vibe_kanban_dev
+      POSTGRES_PASSWORD: dev_db_password_2026_secure
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vibe_kanban_dev -d vibe_kanban_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres-dev-data:
+    driver: local
