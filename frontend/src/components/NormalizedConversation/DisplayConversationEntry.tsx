@@ -609,11 +609,7 @@ const getToolStatusAppearance = (status: ToolStatus): ToolStatusAppearance => {
  *******************/
 
 export const DisplayConversationEntryMaxWidth = (props: Props) => {
-  return (
-    <div className="mx-auto w-full max-w-[50rem]">
-      <DisplayConversationEntry {...props} />
-    </div>
-  );
+  return <DisplayConversationEntry {...props} />;
 };
 
 function DisplayConversationEntry({
@@ -804,6 +800,7 @@ function DisplayConversationEntry({
       <div className="px-4 py-2 text-sm">
         <NextActionCard
           attemptId={taskAttempt?.id}
+          sessionId={taskAttempt?.session?.id}
           containerRef={taskAttempt?.container_ref}
           failed={entry.entry_type.failed}
           execution_processes={entry.entry_type.execution_processes}
